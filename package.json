@@ -1,0 +1,28 @@
+{
+  "name": "authentication_security",
+  "version": "1.0.0",
+  "description": "Learning auth, security and json web tokens",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AxsKramer/authentication_security.git"
+  },
+  "keywords": [],
+  "author": "Alexander Kramer <kramer.axs1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AxsKramer/authentication_security/issues"
+  },
+  "homepage": "https://github.com/AxsKramer/authentication_security#readme",
+  "dependencies": {
+    "ejs": "3.1.5",
+    "express": "4.17.1",
+    "mongoose": "5.10.15"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.6"
+  }
+}
