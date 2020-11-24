@@ -19,7 +19,6 @@ const userSchema = new Schema({
 //Mongoose encrypt the password when post user password to db
 //and unencrypt when we use find() function in the model
 
-const secret = 'Thisisoursecret';
-userSchema.plugin(encrypt, {secret: secret, encryptedFields: ['password'] });
+userSchema.plugin(encrypt, {secret: process.env.SECRET, encryptedFields: ['password'] });
 
 module.exports = new mongoose.model('User', userSchema);
