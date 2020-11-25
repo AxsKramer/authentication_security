@@ -7,7 +7,8 @@ const User = require('./models/User');
 const session = require('express-session');
 const passport = require('passport');
 const app = express();
-
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const findOrCreate = require('mongoose-findorcreate');
 const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({extended: true}));
@@ -30,8 +31,33 @@ app.use(passport.session());
 //LocalStrategy with the correct options.
 passport.use(User.createStrategy());
 //serialize and deserialize is only necessary when we're using sessions
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+//confid. GoogleStrategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  callbackURL: "http://localhost:3000/auth/google/secrets",
+  // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+},
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+
 
 app.use('/', router);
 

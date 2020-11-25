@@ -1,12 +1,39 @@
+const { use } = require('passport');
 const passport = require('passport');
 const User = require('../models/User');
 
-const isauthUser = (req,res ) => {
+const isauthUser = (req,res) => {
+  User.find({'secret': {$ne: null}}, (error, users) => {
+    if(error){
+      console.log(error)
+    }else{
+      if(users){
+        res.render('secrets', {usersWithSecrets: users})
+      }
+    }
+  })
+}
+
+const isauthUserSubmit = (req,res) => {
   if(req.isAuthenticated()){
-    res.render('secrets');
+    res.render('submit');
   }else{
     res.redirect('/login');
   }
+}
+
+const submitSecret = (req, res) => {
+  const submittedSecret = req.body.secret;
+  User.findById(req.user.id, (error, user) => {
+    if(error){
+      console.log(error);
+    }else{
+      if(user){
+        user.secret = submittedSecret;
+        user.save(() => res.redirect('/secrets'));
+      }
+    }
+  })
 }
 
 const registerUser = (req, res) => {
@@ -41,9 +68,17 @@ const logoutUser = (req, res) => {
   res.redirect('/');
 }
 
+const googleAuthIn = (req, res) => {
+    // Successful authentication, redirect to secrets.
+    res.redirect('/secrets');
+}
+
 module.exports = {
   registerUser,
   loginUser,
   isauthUser,
-  logoutUser
+  logoutUser,
+  googleAuthIn,
+  isauthUserSubmit,
+  submitSecret
 }
