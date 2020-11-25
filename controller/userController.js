@@ -1,47 +1,49 @@
+const passport = require('passport');
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
 
-const saltRound = 10;
+const isauthUser = (req,res ) => {
+  if(req.isAuthenticated()){
+    res.render('secrets');
+  }else{
+    res.redirect('/login');
+  }
+}
 
 const registerUser = (req, res) => {
-
-  bcrypt.hash(req.body.password, saltRound, (error, hash) => {
-    const newUser = new User({
-      email: req.body.username,
-      password: hash
-    });
-  
-    newUser.save(error => {
-      if(error){
-        console.log(error)
-      }
-      else{
-        res.render('secrets');
-      }
-    });
-  })
+  User.register({username: req.body.username}, req.body.password, (error, user) => {
+    if (error) {
+      console.log(error);
+      res.redirect("/register");
+    } else {
+      passport.authenticate("local")(req, res, () => res.redirect("/secrets"));
+    }
+  });
 }
 
 const loginUser = (req, res ) => {
-  const username = req.body.username;
-  const password = req.body.password;
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password
+  });
 
-  User.findOne({email: username}, (error, user) => {
+  //this method comes from passport
+  req.login(user, error => {
     if(error){
       console.log(error);
     }else{
-      if(user){
-        bcrypt.compare(password, user.password, (error, result) => {
-          if(result){
-            res.render('secrets')
-          }
-        })
-      }
+      passport.authenticate('local')(req, res, () => res.redirect('/secrets'));
     }
   })
 }
 
+const logoutUser = (req, res) => {
+  req.logout();
+  res.redirect('/');
+}
+
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  isauthUser,
+  logoutUser
 }
